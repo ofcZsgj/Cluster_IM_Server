@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(main)
+project(chat)
 
 # 3.1版本支持：设置编译配置，C++标准为 C++ 11
 # set(CMAKE_CXX_STANDARD 11)
@@ -18,5 +18,9 @@ endif()
 # 设置CMake的全局变量，输出的可执行文件放在工程根目录的/bin中
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
+# 配置头文件搜索目录
+include_directories(${PROJECT_SOURCE_DIR}/include)
+include_directories(${PROJECT_SOURCE_DIR}/include/server)
+
 # 指定搜索的子目录
-add_subdirectory(testmuduo)
+add_subdirectory(src)
