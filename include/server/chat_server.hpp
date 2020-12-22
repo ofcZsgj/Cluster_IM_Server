@@ -20,12 +20,12 @@ public:
 
 private:
     // 上报连接相关信息的回调函数
-    void onConnection(const TcpConnectionPtr &);
+    void onConnection(const TcpConnectionPtr &conn);
 
     // 上报读写事件相关的回调函数
-    void onMessage(const TcpConnectionPtr &, // 连接
-                   Buffer *,                 // 缓冲区
-                   Timestamp);               // 接收到数据时的事件
+    void onMessage(const TcpConnectionPtr &conn, // 连接
+                   Buffer *buffer,               // 缓冲区
+                   Timestamp time);              // 接收到数据时的事件
 
     TcpServer _server;
     EventLoop *_loop;

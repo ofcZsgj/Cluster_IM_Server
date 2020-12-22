@@ -4,6 +4,9 @@
 using namespace std;
 using namespace std::placeholders;
 
+#include "json.hpp"
+using json = nlohmann::json;
+
 ChatServer::ChatServer(EventLoop *loop,               // 事件循环
                        const InetAddress &listenAddr, // IP + Port
                        const string &nameArg)         // 服务器的名字
@@ -28,8 +31,13 @@ void ChatServer::start()
 }
 
 // 上报连接相关信息的回调函数
+// typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
 void ChatServer::onConnection(const TcpConnectionPtr &conn)
 {
+    if (!conn->connected())
+    {
+        conn->shutdown();
+    }
 }
 
 // 上报读写事件相关的回调函数
@@ -37,4 +45,13 @@ void ChatServer::onMessage(const TcpConnectionPtr &conn, // 连接
                            Buffer *buffer,               // 缓冲区
                            Timestamp time)               // 接收到数据时的事件
 {
+    // 读出buffer中的数据
+    string buf = buffer->retrieveAllAsString();
+    // 数据的反序列化
+    json js = json::parse(buf);
+
+    /**
+     * 通过js[msgid]获取 => 业务handle => conn js time......
+     * 达到网络模块和业务模块的解耦
+     */
 }
