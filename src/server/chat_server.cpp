@@ -57,7 +57,7 @@ void ChatServer::onMessage(const TcpConnectionPtr &conn, // 连接
      * 达到网络模块和业务模块的解耦
      * ****************************************************
      */
-    auto msgHandler = ChatService::instance()->getHandler(js.get<int>()); //msgid转成int取出
+    auto msgHandler = ChatService::instance()->getHandler(js["msgid"].get<int>());
     // 回调消息绑定好的事件处理器来执行相应的业务逻辑
     msgHandler(conn, js, time);
 }
