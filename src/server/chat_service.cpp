@@ -39,9 +39,11 @@ MsgHandler ChatService::getHandler(int msgid)
 // 处理登陆业务
 void ChatService::login(const TcpConnectionPtr &conn, json &js, Timestamp time)
 {
+    LOG_INFO << "do login service";
 }
 
 // 处理注册业务
 void ChatService::reg(const TcpConnectionPtr &conn, json &js, Timestamp time)
 {
+    LOG_INFO << "do reg service";
 }
