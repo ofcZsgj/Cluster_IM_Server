@@ -1,6 +1,7 @@
 #ifndef CHAT_SERVICE_H
 #define CHAT_SERVECE_H
 
+#include "user_module.hpp"
 #include <muduo/net/TcpConnection.h>
 #include <functional>
 #include <unordered_map>
@@ -33,6 +34,8 @@ private:
 
     // 存储消息种类的ID和对应的业务映射方法
     std::unordered_map<int, MsgHandler> _msgHandlerMap;
+    // user表的数据对象操作类
+    UserModule _userModule;
 };
 
 #endif

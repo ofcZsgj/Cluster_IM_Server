@@ -45,5 +45,31 @@ void ChatService::login(const TcpConnectionPtr &conn, json &js, Timestamp time)
 // 处理注册业务
 void ChatService::reg(const TcpConnectionPtr &conn, json &js, Timestamp time)
 {
-    LOG_INFO << "do reg service";
+    string name = js["name"];
+    string password = js["password"];
+
+    // 创建一个user对象，将传入的json数据中的信息读出写入到对象中，再插入到数据库中
+    User user;
+    user.setName(name);
+    user.setPassword(password);
+    bool state = _userModule.insert(user);
+
+    // 判断是否插入成功
+    if (state)
+    {
+        // 注册成功
+        json success_response;
+        success_response["msgid"] = REG_MSG_ACK;
+        success_response["errno"] = 0;
+        success_response["id"] = user.getId();
+        conn->send(success_response.dump());
+    }
+    else
+    {
+        // 注册失败
+        json fail_response;
+        fail_response["msgid"] = REG_MSG_ACK;
+        fail_response["errno"] = 1;
+        conn->send(fail_response.dump());
+    }
 }
