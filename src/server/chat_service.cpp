@@ -43,6 +43,13 @@ MsgHandler ChatService::getHandler(int msgid)
     }
 }
 
+// 处理服务器端异常退出, 服务器异常，业务重置
+void ChatService::reset()
+{
+    // 服务器异常退出时将所有inline的用户信息重置为offline
+    _userModule.resetState();
+}
+
 // 处理登陆业务
 void ChatService::login(const TcpConnectionPtr &conn, json &js, Timestamp time)
 {

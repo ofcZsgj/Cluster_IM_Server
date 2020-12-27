@@ -76,3 +76,16 @@ bool UserModule::updateState(User user)
     }
     return false;
 }
+
+// 重置用户的状态信息
+void UserModule::resetState()
+{
+    char sql[128] = {"update user set state = 'offline' where state = 'inline'"};
+
+    MySQL mysql;
+    if (mysql.connect())
+    {
+        mysql.update(sql);
+    }
+    return;
+}
