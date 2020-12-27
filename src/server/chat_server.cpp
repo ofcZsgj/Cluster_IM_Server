@@ -35,8 +35,10 @@ void ChatServer::start()
 // typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
 void ChatServer::onConnection(const TcpConnectionPtr &conn)
 {
+    // 处理客户端连接中断
     if (!conn->connected())
     {
+        ChatService::instance()->ClientCloseException(conn);
         conn->shutdown();
     }
 }
