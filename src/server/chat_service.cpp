@@ -1,6 +1,8 @@
 #include "chat_service.hpp"
 #include "public.hpp"
 
+#include <string>
+#include <vector>
 #include <muduo/base/Logging.h>
 
 // 获取单例对象的接口函数
@@ -46,8 +48,9 @@ void ChatService::login(const TcpConnectionPtr &conn, json &js, Timestamp time)
 {
     string name = js["name"];
     string password = js["password"];
+    int id = js["id"].get<int>();
 
-    User user = _userModule.query(js["id"].get<int>());
+    User user = _userModule.query(id);
     if (user.getName() == name && user.getPassword() == password)
     {
         if (user.getState() == "offline")
@@ -67,6 +70,15 @@ void ChatService::login(const TcpConnectionPtr &conn, json &js, Timestamp time)
             success_response["errno"] = 0;
             success_response["id"] = user.getId();
             success_response["name"] = user.getName();
+
+            // 查询用户是否有离线消息
+            std::vector<std::string> vec = _offlineMsgModule.query(id);
+            if (!vec.empty())
+            {
+                success_response["offlinemsg"] = vec;
+                // 读取用户的离线消息后，删除该用户在offline_message表中的离线消息
+                _offlineMsgModule.remove(id);
+            }
             conn->send(success_response.dump());
         }
         else
@@ -161,4 +173,7 @@ void ChatService::oneChat(const TcpConnectionPtr &conn, json &js, Timestamp time
             return;
         }
     }
+
+    // toid用户不在线，存储离线消息
+    _offlineMsgModule.insert(toid, js.dump());
 }

@@ -2,6 +2,7 @@
 #define CHAT_SERVECE_H
 
 #include "user_module.hpp"
+#include "offline_msg_module.hpp"
 #include <muduo/net/TcpConnection.h>
 #include <functional>
 #include <unordered_map>
@@ -41,6 +42,8 @@ private:
     std::unordered_map<int, MsgHandler> _msgHandlerMap;
     // user表的数据对象操作类
     UserModule _userModule;
+    // offline_message表的数据对象操作类
+    OfflineMsgModule _offlineMsgModule;
     // 存储在线用户的通信连接
     unordered_map<int, TcpConnectionPtr> _userConnMap;
     // 定义互斥锁保证_userConnMap的线程安全
