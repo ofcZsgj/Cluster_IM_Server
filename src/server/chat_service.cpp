@@ -47,6 +47,11 @@ void ChatService::login(const TcpConnectionPtr &conn, json &js, Timestamp time)
     {
         if (user.getState() == "offline")
         {
+            {
+                //登陆成功，记录用户的长连接信息
+                lock_guard<mutex> lock(_connMutex);
+                _userConnMap.insert(make_pair(user.getId(), conn));
+            }
             // 登陆成功 更改用户状态为 inline
             user.setState("inline");
             // 通过module修改数据库状态信息

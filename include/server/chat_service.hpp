@@ -5,6 +5,7 @@
 #include <muduo/net/TcpConnection.h>
 #include <functional>
 #include <unordered_map>
+#include <mutex>
 
 #include "json.hpp"
 using json = nlohmann::json;
@@ -36,6 +37,10 @@ private:
     std::unordered_map<int, MsgHandler> _msgHandlerMap;
     // user表的数据对象操作类
     UserModule _userModule;
+    // 存储在线用户的通信连接
+    unordered_map<int, TcpConnectionPtr> _userConnMap;
+    // 定义互斥锁保证_userConnMap的线程安全
+    mutex _connMutex;
 };
 
 #endif
