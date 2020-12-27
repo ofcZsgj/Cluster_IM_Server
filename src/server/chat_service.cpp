@@ -39,7 +39,45 @@ MsgHandler ChatService::getHandler(int msgid)
 // 处理登陆业务
 void ChatService::login(const TcpConnectionPtr &conn, json &js, Timestamp time)
 {
-    LOG_INFO << "do login service";
+    string name = js["name"];
+    string password = js["password"];
+
+    User user = _userModule.query(js["id"].get<int>());
+    if (user.getName() == name && user.getPassword() == password)
+    {
+        if (user.getState() == "offline")
+        {
+            // 登陆成功 更改用户状态为 inline
+            user.setState("inline");
+            // 通过module修改数据库状态信息
+            _userModule.updateState(user);
+
+            json success_response;
+            success_response["msgid"] = LOGIN_MSG_ACK;
+            success_response["errno"] = 0;
+            success_response["id"] = user.getId();
+            success_response["name"] = user.getName();
+            conn->send(success_response.dump());
+        }
+        else
+        {
+            // 重复登陆
+            json repeat_response;
+            repeat_response["msgid"] = LOGIN_MSG_ACK;
+            repeat_response["errno"] = 1;
+            repeat_response["errmsg"] = "该账号已经登陆，请重新输入新账号";
+            conn->send(repeat_response.dump());
+        }
+    }
+    else
+    {
+        // 用户名或密码错误
+        json repeat_response;
+        repeat_response["msgid"] = LOGIN_MSG_ACK;
+        repeat_response["errno"] = 2;
+        repeat_response["errmsg"] = "用户名或密码错误，请重新输入";
+        conn->send(repeat_response.dump());
+    }
 }
 
 // 处理注册业务
