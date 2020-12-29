@@ -1,5 +1,6 @@
 #include "chat_service.hpp"
 #include "public.hpp"
+#include "user.hpp"
 
 #include <string>
 #include <vector>
@@ -24,6 +25,9 @@ ChatService::ChatService()
     // 一对一聊天
     _msgHandlerMap.insert(make_pair(ONE_CHAT_MSG,
                                     std::bind(&ChatService::oneChat, this, _1, _2, _3)));
+    // 添加好友
+    _msgHandlerMap.insert(make_pair(ADD_FRIEND_MSG,
+                                    std::bind(&ChatService::addFriend, this, _1, _2, _3)));
 }
 
 // 获取消息对应的处理器
@@ -85,6 +89,23 @@ void ChatService::login(const TcpConnectionPtr &conn, json &js, Timestamp time)
                 success_response["offlinemsg"] = vec;
                 // 读取用户的离线消息后，删除该用户在offline_message表中的离线消息
                 _offlineMsgModule.remove(id);
+            }
+
+            // 查询用户好友信息
+            std::vector<User> frivec = _friendModule.query(id);
+
+            if (!frivec.empty())
+            {
+                std::vector<std::string> vec2;
+                for (User &user : frivec)
+                {
+                    json js;
+                    js["id"] = user.getId();
+                    js["name"] = user.getName();
+                    js["state"] = user.getState();
+                    vec2.push_back(js.dump());
+                }
+                success_response["friends"] = vec2;
             }
             conn->send(success_response.dump());
         }
@@ -183,4 +204,14 @@ void ChatService::oneChat(const TcpConnectionPtr &conn, json &js, Timestamp time
 
     // toid用户不在线，存储离线消息
     _offlineMsgModule.insert(toid, js.dump());
+}
+
+// 添加好友业务
+void ChatService::addFriend(const TcpConnectionPtr &conn, json &js, Timestamp time)
+{
+    int userid = js["id"].get<int>();
+    int friendid = js["friendid"].get<int>();
+
+    //存储好友信息(后期可以优化将好友信息存储在客户端)
+    _friendModule.insert(userid, friendid);
 }

@@ -3,6 +3,7 @@
 
 #include "user_module.hpp"
 #include "offline_msg_module.hpp"
+#include "friend_module.hpp"
 #include <muduo/net/TcpConnection.h>
 #include <functional>
 #include <unordered_map>
@@ -30,6 +31,8 @@ public:
     void reg(const TcpConnectionPtr &conn, json &js, Timestamp time);
     // 处理一对一聊天业务
     void oneChat(const TcpConnectionPtr &conn, json &js, Timestamp time);
+    // 添加好友业务
+    void addFriend(const TcpConnectionPtr &conn, json &js, Timestamp time);
     // 获取消息对应的处理器
     MsgHandler getHandler(int msgid);
     // 处理客户端异常退出
@@ -46,6 +49,8 @@ private:
     UserModule _userModule;
     // offline_message表的数据对象操作类
     OfflineMsgModule _offlineMsgModule;
+    // friend表的数据对象操作类
+    FriendModule _friendModule;
     // 存储在线用户的通信连接
     unordered_map<int, TcpConnectionPtr> _userConnMap;
     // 定义互斥锁保证_userConnMap的线程安全
