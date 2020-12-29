@@ -20,3 +20,17 @@ bool GroupModule::createGroup(Group &group)
     }
     return false;
 }
+
+// 加入群组
+void GroupModule::addGroup(int userid, int groupid, string role)
+{
+    char sql[128] = {};
+    sprintf(sql, "insert into group_user(user_id, group_id, group_role) values(%d, %d, '%s')", userid, groupid, role.c_str());
+
+    MySQL mysql;
+    if (mysql.connect())
+    {
+        mysql.update(sql);
+    }
+    return;
+}
