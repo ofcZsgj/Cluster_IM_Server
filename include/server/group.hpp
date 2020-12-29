@@ -20,7 +20,7 @@ public:
 
     int getId() { return this->id; }
     string getName() { return this->name; }
-    string getPassword() { return this->desc; }
+    string getDesc() { return this->desc; }
     // 返回该群组中人员列表的引用
     vector<GroupUser> &getUsers() { return this->users; }
 
