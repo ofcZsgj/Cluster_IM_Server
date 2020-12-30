@@ -28,6 +28,15 @@ ChatService::ChatService()
     // 添加好友
     _msgHandlerMap.insert(make_pair(ADD_FRIEND_MSG,
                                     std::bind(&ChatService::addFriend, this, _1, _2, _3)));
+    // 创建群组
+    _msgHandlerMap.insert(make_pair(CREATE_GROUP_MSG,
+                                    std::bind(&ChatService::createGroup, this, _1, _2, _3)));
+    // 加入群组
+    _msgHandlerMap.insert(make_pair(ADD_GROUP_MSG,
+                                    std::bind(&ChatService::joinGroup, this, _1, _2, _3)));
+    // 群聊
+    _msgHandlerMap.insert(make_pair(GROUP_CHAT_MSG,
+                                    std::bind(&ChatService::groupChat, this, _1, _2, _3)));
 }
 
 // 获取消息对应的处理器
