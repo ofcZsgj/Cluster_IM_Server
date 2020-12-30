@@ -21,8 +21,10 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 # 配置头文件搜索目录
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${PROJECT_SOURCE_DIR}/include/server)
-include_directories(${PROJECT_SOURCE_DIR}/thirdparty)
 include_directories(${PROJECT_SOURCE_DIR}/include/server/dao)
+include_directories(${PROJECT_SOURCE_DIR}/include/server/models)
+include_directories(${PROJECT_SOURCE_DIR}/include/server/modules)
+include_directories(${PROJECT_SOURCE_DIR}/thirdparty)
 
 # 指定搜索的子目录
 add_subdirectory(src)
