@@ -98,3 +98,31 @@ vector<Group> GroupModule::queryGroup(int userid)
 
     return groupvec;
 }
+
+// 根据指定的groupid查询该群组的所有成员除userid外，返回这些用户的id给service来发送消息
+vector<int> GroupModule::queryGroupUsers(int userid, int groupid)
+{
+    char sql[128] = {0};
+    sprintf(sql, "select user_id from group_user where group_id = %d and user_id != %d", groupid, userid);
+
+    vector<int> idvec;
+    MySQL mysql;
+    if (mysql.connect())
+    {
+        MYSQL_RES *res = mysql.query(sql);
+
+        if (res != nullptr)
+        {
+            // 把用户id存到vec中返回给service派发消息
+            MYSQL_ROW row;
+            while ((row = mysql_fetch_row(res)) != nullptr)
+            {
+                idvec.push_back(atoi(row[0]));
+            }
+            // 释放资源
+            mysql_free_result(res);
+        }
+    }
+
+    return idvec;
+}
