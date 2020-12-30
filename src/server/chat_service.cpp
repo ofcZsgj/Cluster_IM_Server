@@ -224,3 +224,55 @@ void ChatService::addFriend(const TcpConnectionPtr &conn, json &js, Timestamp ti
     //存储好友信息(后期可以优化将好友信息存储在客户端)
     _friendModule.insert(userid, friendid);
 }
+
+// 创建群组业务
+void ChatService::createGroup(const TcpConnectionPtr &conn, json &js, Timestamp time)
+{
+    int userid = js["id"].get<int>();
+    string name = js["groupname"];
+    string desc = js["groupdesc"];
+
+    Group group(-1, name, desc);
+
+    // 创建成功，该用户添加至该群组中，role为admin
+    if (_groupModule.createGroup(group))
+    {
+        _groupModule.addGroup(userid, group.getId(), "admin");
+    }
+}
+
+// 加入群组业务
+void ChatService::joinGroup(const TcpConnectionPtr &conn, json &js, Timestamp time)
+{
+    int userid = js["id"].get<int>();
+    int groupid = js["groupid"].get<int>();
+    _groupModule.addGroup(userid, groupid, "normal");
+}
+
+// 发送群聊消息业务
+void ChatService::groupChat(const TcpConnectionPtr &conn, json &js, Timestamp time)
+{
+    int userid = js["id"].get<int>();
+    int groupid = js["groupid"].get<int>();
+
+    // 得到这个用户所在的群成员id列表
+    vector<int> idvec = _groupModule.queryGroupUsers(userid, groupid);
+
+    // 由于多个worker线程同时会处理各类消息的事件回调方法，使用到这个记录用户连接的unordered_map表
+    // 因此访问时需要加锁保证线程安全
+    lock_guard<mutex> lock(_connMutex);
+    for (int id : idvec)
+    {
+        // unordered_map查询这个id的连接TcpConnectionPtr是否存在，存在即在线否则下线
+        auto it = _userConnMap.find(id);
+        if (it != _userConnMap.end())
+        {
+            // 这条连接在线，转发消息：服务器主动推送消息给这条连接的用户
+            it->second->send(js.dump());
+            return;
+        }
+
+        // 用户不在线，存储离线群聊消息，下次登陆时推送
+        _offlineMsgModule.insert(id, js.dump());
+    }
+}
