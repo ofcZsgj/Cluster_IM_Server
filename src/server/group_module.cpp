@@ -34,3 +34,67 @@ void GroupModule::addGroup(int userid, int groupid, string role)
     }
     return;
 }
+
+// 查询用户所在的所有群组的信息
+vector<Group> GroupModule::queryGroup(int userid)
+{
+    char sql[256] = {0};
+    // 查询所有的群组信息
+    sprintf(sql, "select ta.id, ta.group_desc, ta.group_name, from all_group as ta inner join group_user as tb on ta.id = tb.group_id where tb.user_id = %d", userid);
+
+    MySQL mysql;
+    std::vector<Group> groupvec;
+    if (mysql.connect())
+    {
+        MYSQL_RES *res = mysql.query(sql);
+
+        if (res != nullptr)
+        {
+            // 把userid用户所在的全部群信息放到vector中
+            MYSQL_ROW row;
+            while ((row = mysql_fetch_row(res)) != nullptr)
+            {
+                Group group;
+                group.setId(atoi(row[0]));
+                group.setName(row[1]);
+                group.setDesc(row[2]);
+                groupvec.push_back(group);
+            }
+            // 释放资源
+            mysql_free_result(res);
+        }
+    }
+
+    // 查询各个群组中的用户信息
+    for (Group &group : groupvec)
+    {
+        char sql[256] = {0};
+        // 查询每个群组中所有用户的id，name，state以及在群组的身份信息
+        sprintf(sql, "select ta.id, ta.name, ta.state, tb.group_role from user as ta inner join group_user as tb on ta.id = tb.user_id where tb.group_id = %d", group.getId());
+
+        MySQL mysql;
+        if (mysql.connect())
+        {
+            MYSQL_RES *res = mysql.query(sql);
+
+            if (res != nullptr)
+            {
+                // 把用户信息查询放到group_user的vector中，最后再放到group中
+                MYSQL_ROW row;
+                while ((row = mysql_fetch_row(res)) != nullptr)
+                {
+                    GroupUser gu;
+                    gu.setId(atoi(row[0]));
+                    gu.setName(row[1]);
+                    gu.setState(row[2]);
+                    gu.setRole(row[3]);
+                    group.getUsers().push_back(gu);
+                }
+                // 释放资源
+                mysql_free_result(res);
+            }
+        }
+    }
+
+    return groupvec;
+}
