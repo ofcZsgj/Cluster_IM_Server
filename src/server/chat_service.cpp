@@ -66,12 +66,11 @@ void ChatService::reset()
 // 处理登陆业务
 void ChatService::login(const TcpConnectionPtr &conn, json &js, Timestamp time)
 {
-    string name = js["name"];
-    string password = js["password"];
     int id = js["id"].get<int>();
+    string password = js["password"];
 
     User user = _userModule.query(id);
-    if (user.getName() == name && user.getPassword() == password)
+    if (user.getId() == id && user.getPassword() == password)
     {
         if (user.getState() == "offline")
         {
@@ -116,6 +115,35 @@ void ChatService::login(const TcpConnectionPtr &conn, json &js, Timestamp time)
                 }
                 success_response["friends"] = vec2;
             }
+
+            // 查询用户的群组信息
+            vector<Group> groupuserVec = _groupModule.queryGroup(id);
+            if (!groupuserVec.empty())
+            {
+                vector<string> groupV;
+                for (Group &group : groupuserVec)
+                {
+                    json grpjson;
+                    grpjson["id"] = group.getId();
+                    grpjson["groupname"] = group.getName();
+                    grpjson["groupdesc"] = group.getDesc();
+                    vector<string> userV;
+                    for (GroupUser &user : group.getUsers())
+                    {
+                        json js;
+                        js["id"] = user.getId();
+                        js["name"] = user.getName();
+                        js["state"] = user.getState();
+                        js["role"] = user.getRole();
+                        userV.push_back(js.dump());
+                    }
+                    grpjson["users"] = userV;
+                    groupV.push_back(grpjson.dump());
+                }
+
+                success_response["groups"] = groupV;
+            }
+
             conn->send(success_response.dump());
         }
         else
