@@ -15,6 +15,8 @@ public:
     bool updateState(User user);
     // 重置用户的状态信息
     void resetState();
+    // 查询用户名是否重复
+    bool queryUsername(string username);
 };
 
 #endif
