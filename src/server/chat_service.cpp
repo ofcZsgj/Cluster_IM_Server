@@ -173,10 +173,6 @@ void ChatService::reg(const TcpConnectionPtr &conn, json &js, Timestamp time)
     string name = js["name"];
     string password = js["password"];
 
-    /**
-     * TODO: 阻止重复注册相同的username
-     */
-
     // 创建一个user对象，将传入的json数据中的信息读出写入到对象中，再插入到数据库中
     User user;
     user.setName(name);
