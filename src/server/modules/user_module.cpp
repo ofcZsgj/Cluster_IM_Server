@@ -7,6 +7,12 @@ using namespace std;
 // 向user表增加数据的方法
 bool UserModule::insert(User &user)
 {
+    // 检查是否重复插入相同的name
+    if (queryUsername(user.getName()) == true)
+    {
+        return false;
+    }
+
     // 组装SQL语句
     char sql[128] = {0};
     sprintf(sql, "insert into user(name, password, state) values('%s', '%s', '%s')",
@@ -88,4 +94,33 @@ void UserModule::resetState()
         mysql.update(sql);
     }
     return;
+}
+
+// 查询用户名是否重复
+bool UserModule::queryUsername(string username)
+{
+    char sql[128] = {0};
+    sprintf(sql, "select name from user where name = '%s'", username.c_str());
+
+    MySQL mysql;
+    if (mysql.connect())
+    {
+        MYSQL_RES *res = mysql.query(sql);
+
+        if (res != nullptr)
+        {
+            // 获取一行数据
+            MYSQL_ROW row = mysql_fetch_row(res);
+            if (row != nullptr)
+            {
+                if (row[0] != "")
+                {
+                    return true;
+                }
+                // 释放资源
+                mysql_free_result(res);
+            }
+        }
+    }
+    return false;
 }
