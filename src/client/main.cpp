@@ -24,9 +24,17 @@ User g_currentUser;
 vector<User> g_currentUserFriendList;
 // 记录当前的登陆用户的群组列表信息
 vector<Group> g_currentUserGroupList;
+// 显示当前登陆成功用户的基本信息
+void showCurrentUserData();
+// 控制主菜单页面程序
+bool isMainMenuRunning = false;
 
 // 接收线程
 void readTaskHandler(int clientfd);
+// 获取系统时间（聊天信息需要添加时间信息）
+string getCurrentTime();
+// 主聊天页面程序
+void mainMenu(int);
 
 // 聊天客户端程序实现 main线程用作发送线程，子线程用于接收线程
 int main(int argc, char **argv)
@@ -66,7 +74,7 @@ int main(int argc, char **argv)
     }
 
     // main线程用户接收用户输入，负责发送数据
-    while (1)
+    while (true)
     {
         // 显示首页面菜单 登录、注册、退出
         cout << "========================" << endl;
@@ -84,12 +92,12 @@ int main(int argc, char **argv)
         case 1: // login业务
         {
             int id = 0;
-            char pwd[20] = {0};
+            char pwd[30] = {0};
             cout << "userid:";
             cin >> id;
             cin.get(); // 读取掉缓冲区中的回车
             cout << "userpassword:";
-            cin.getline(pwd, 20);
+            cin.getline(pwd, 30);
 
             // 对登陆消息，用户输入的id和密码进行json序列化并发送给服务器
             json js;
@@ -97,9 +105,9 @@ int main(int argc, char **argv)
             js["id"] = id;
             js["password"] = pwd;
             string request = js.dump();
-            int len = send(clientfd, request.c_str(), strlen(request.c_str() + 1), 0);
+            int len = send(clientfd, request.c_str(), strlen(request.c_str()) + 1, 0);
 
-            if (len == -1)
+            if (-1 == len)
             {
                 cerr << "send login msg error:" << request << endl;
             }
@@ -173,6 +181,42 @@ int main(int argc, char **argv)
                                 g_currentUserGroupList.push_back(group);
                             }
                         }
+
+                        // 显示登陆用户的基本信息
+                        showCurrentUserData();
+
+                        // 显示当前用户的离线消息 个人聊天消息或者群组消息
+                        if (responsejs.contains("offlinemsg"))
+                        {
+                            vector<string> vec = responsejs["offlinemsg"];
+                            for (string &str : vec)
+                            {
+                                json js = json::parse(str);
+                                // time + [id] + name + "said: " + xxx
+                                if (ONE_CHAT_MSG == js["msgid"].get<int>()) // 私聊
+                                {
+                                    cout << js["time"].get<string>() << " [" << js["id"] << "]" << js["name"].get<string>() << " said: " << js["msg"].get<string>() << endl;
+                                }
+                                else // 群聊
+                                {
+                                    cout << "群消息[" << js["groupid"] << "]:" << js["time"].get<string>() << " [" << js["id"] << "]" << js["name"].get<string>()
+                                         << " said: " << js["msg"].get<string>() << endl;
+                                }
+                            }
+                        }
+
+                        // 登陆成功，启动接收线程负责接收数据，该线程只启动一次
+                        static int readthreadnumber = 0;
+                        if (0 == readthreadnumber)
+                        {
+                            std::thread readTask(readTaskHandler, clientfd); // pthread_create
+
+                            // 分离进程
+                            readTask.detach(); // pthread_detach
+                            ++readthreadnumber;
+                        }
+
+                        // 进入聊天主菜单页面
                     }
                 }
             }
@@ -181,12 +225,12 @@ int main(int argc, char **argv)
         case 2: // register业务
         {
             // 接收用户输入的用户名和密码
-            char name[12] = {0};
-            char pwd[20] = {0};
+            char name[30] = {0};
+            char pwd[30] = {0};
             cout << "username:";
-            cin.getline(name, 12);
+            cin.getline(name, 30);
             cout << "userpassword:";
-            cin.getline(pwd, 20);
+            cin.getline(pwd, 30);
 
             // 将注册消息，用户名，密码进行json序列化后发送到服务器
             json js;
@@ -194,9 +238,9 @@ int main(int argc, char **argv)
             js["name"] = name;
             js["password"] = pwd;
             string request = js.dump();
-            int len = send(clientfd, request.c_str(), strlen(request.c_str() + 1), 0);
+            int len = send(clientfd, request.c_str(), strlen(request.c_str()) + 1, 0);
 
-            if (len == -1)
+            if (-1 == len)
             {
                 cerr << "send reg msg error:" << request << endl;
             }
@@ -229,7 +273,6 @@ int main(int argc, char **argv)
             close(clientfd);
             exit(0);
         }
-        break;
         default:
             cerr << "invalid input!" << endl;
             break;
@@ -237,4 +280,69 @@ int main(int argc, char **argv)
     }
 
     return 0;
+}
+
+// 接收线程
+void readTaskHandler(int clientfd)
+{
+    while (true)
+    {
+        char buffer[1024] = {0};
+        int len = recv(clientfd, buffer, 1024, 0); // 阻塞
+        if (-1 == len || 0 == 0)
+        {
+            close(clientfd);
+            exit(-1);
+        }
+
+        // 接收ChatServer转发的数据，反序列化生成json数据对象
+        json js = json::parse(buffer);
+        int msgtype = js["msgid"].get<int>();
+        if (ONE_CHAT_MSG == msgtype) //私聊
+        {
+            cout << js["time"].get<string>() << " [" << js["id"] << "]" << js["name"].get<string>()
+                 << " said: " << js["msg"].get<string>() << endl;
+            continue;
+        }
+
+        if (GROUP_CHAT_MSG == msgtype) //群聊
+        {
+            cout << "群消息[" << js["groupid"] << "]:" << js["time"].get<string>() << " [" << js["id"] << "]" << js["name"].get<string>()
+                 << " said: " << js["msg"].get<string>() << endl;
+            continue;
+        }
+    }
+}
+
+// 显示当前登陆成功用户的基本信息
+void showCurrentUserData()
+{
+    cout << "======================login user======================" << endl;
+    cout << "current login user => id:" << g_currentUser.getId() << " name:" << g_currentUser.getName() << endl;
+
+    cout << "----------------------friend list---------------------" << endl;
+
+    if (!g_currentUserFriendList.empty())
+    {
+        for (User &user : g_currentUserFriendList)
+        {
+            cout << user.getId() << " " << user.getName() << " " << user.getState() << endl;
+        }
+    }
+
+    cout << "----------------------group list----------------------" << endl;
+
+    if (!g_currentUserGroupList.empty())
+    {
+        for (Group &group : g_currentUserGroupList)
+        {
+            cout << group.getId() << " " << group.getName() << " " << group.getDesc() << endl;
+            for (GroupUser &guser : group.getUsers())
+            {
+                cout << guser.getId() << " " << guser.getName() << " " << guser.getState() << " " << guser.getRole() << endl;
+            }
+        }
+    }
+
+    cout << "======================================================" << endl;
 }
