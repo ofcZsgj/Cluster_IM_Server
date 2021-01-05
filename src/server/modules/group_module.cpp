@@ -40,7 +40,7 @@ vector<Group> GroupModule::queryGroup(int userid)
 {
     char sql[256] = {0};
     // 查询所有的群组信息
-    sprintf(sql, "select ta.id, ta.group_desc, ta.group_name, from all_group as ta inner join group_user as tb on ta.id = tb.group_id where tb.user_id = %d", userid);
+    sprintf(sql, "select ta.id, ta.group_desc, ta.group_name from all_group as ta inner join group_user as tb on ta.id = tb.group_id where tb.user_id = %d", userid);
 
     MySQL mysql;
     std::vector<Group> groupvec;
