@@ -10,7 +10,7 @@ bool UserModule::insert(User &user)
     // 组装SQL语句
     char sql[128] = {0};
     sprintf(sql, "insert into user(name, password, state) values('%s', '%s', '%s')",
-            user.getName().c_str(), user.getPassword().c_str(), user.getState().c_str());
+            user.getName().c_str(), user.getPassword().c_str(), "offline");
 
     MySQL mysql;
     if (mysql.connect())
