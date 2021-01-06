@@ -17,6 +17,7 @@ enum EnMsgType
     CREATE_GROUP_MSG, // 7 创建群组信息
     ADD_GROUP_MSG,    // 8 加入群组信息
     GROUP_CHAT_MSG,   // 9 群聊消息
+    LOGINOUT_MSG,     // 10 登出消息
 };
 
 #endif
