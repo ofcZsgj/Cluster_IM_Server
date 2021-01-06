@@ -46,7 +46,7 @@ void ChatServer::onConnection(const TcpConnectionPtr &conn)
 // 上报读写事件相关的回调函数
 void ChatServer::onMessage(const TcpConnectionPtr &conn, // 连接
                            Buffer *buffer,               // 缓冲区
-                           Timestamp time)               // 接收到数据时的事件
+                           Timestamp time)               // 接收到数据时的时间
 {
     // 读出buffer中的数据
     string buf = buffer->retrieveAllAsString();
