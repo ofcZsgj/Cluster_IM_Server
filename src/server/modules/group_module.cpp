@@ -5,7 +5,7 @@
 bool GroupModule::createGroup(Group &group)
 {
     char sql[128] = {0};
-    sprintf(sql, "insert into all_group(group_name, desc) values('%s', '%s')",
+    sprintf(sql, "insert into all_group(group_name, group_desc) values('%s', '%s')",
             group.getName().c_str(), group.getDesc().c_str());
 
     MySQL mysql;
