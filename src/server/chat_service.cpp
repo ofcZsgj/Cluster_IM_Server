@@ -37,6 +37,9 @@ ChatService::ChatService()
     // 群聊
     _msgHandlerMap.insert(make_pair(GROUP_CHAT_MSG,
                                     std::bind(&ChatService::groupChat, this, _1, _2, _3)));
+    // 登出
+    _msgHandlerMap.insert(make_pair(LOGINOUT_MSG,
+                                    std::bind(&ChatService::logout, this, _1, _2, _3)));
 }
 
 // 获取消息对应的处理器
@@ -297,10 +300,30 @@ void ChatService::groupChat(const TcpConnectionPtr &conn, json &js, Timestamp ti
         {
             // 这条连接在线，转发消息：服务器主动推送消息给这条连接的用户
             it->second->send(js.dump());
-            return;
+            continue;
         }
 
         // 用户不在线，存储离线群聊消息，下次登陆时推送
         _offlineMsgModule.insert(id, js.dump());
     }
+}
+
+// 处理登出业务
+void ChatService::logout(const TcpConnectionPtr &conn, json &js, Timestamp time)
+{
+    int userid = js["id"].get<int>();
+
+    {
+        // 加锁后在map中删除用户连接
+        lock_guard<mutex> lock(_connMutex);
+        auto it = _userConnMap.find(userid);
+        if (it != _userConnMap.end())
+        {
+            _userConnMap.erase(it);
+        }
+    }
+
+    // 设置用户为offline
+    User user(userid, "", "", "offline");
+    _userModule.updateState(user);
 }

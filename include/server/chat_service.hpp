@@ -40,6 +40,8 @@ public:
     void joinGroup(const TcpConnectionPtr &conn, json &js, Timestamp time);
     // 发送群聊消息业务
     void groupChat(const TcpConnectionPtr &conn, json &js, Timestamp time);
+    // 处理登出业务
+    void logout(const TcpConnectionPtr &conn, json &js, Timestamp time);
     // 获取消息对应的处理器
     MsgHandler getHandler(int msgid);
     // 处理客户端异常退出
