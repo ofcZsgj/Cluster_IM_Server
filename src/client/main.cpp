@@ -364,8 +364,8 @@ void creategroup(int, string);
 void addgroup(int, string);
 // "groupchat" command handler
 void groupchat(int, string);
-// "loginout" command handler
-void loginout(int, string);
+// "logout" command handler
+void logout(int, string);
 
 // 系统支持的客户端命令列表
 unordered_map<string, string> commandMap = {
@@ -375,7 +375,7 @@ unordered_map<string, string> commandMap = {
     {"creategroup", " 创建群组，格式creategroup:groupname:groupdesc"},
     {"addgroup", "    加入群组，格式addgroup:groupid"},
     {"groupchat", "   群聊，格式groupchat:groupid:message"},
-    {"loginout", "    注销，格式loginout"}};
+    {"logout", "    注销，格式logout"}};
 
 // 注册系统支持的客户端命令处理方法
 unordered_map<string, function<void(int, string)>> commandHandlerMap = {
@@ -385,7 +385,7 @@ unordered_map<string, function<void(int, string)>> commandHandlerMap = {
     {"creategroup", creategroup},
     {"addgroup", addgroup},
     {"groupchat", groupchat},
-    {"loginout", loginout}};
+    {"logout", logout}};
 
 // 主聊天页面程序
 void mainMenu(int clientfd)
@@ -549,8 +549,8 @@ void groupchat(int clientfd, string str)
     }
 }
 
-// "loginout" command handler
-void loginout(int clientfd, string str)
+// "logout" command handler
+void logout(int clientfd, string str)
 {
     json js;
     js["msgid"] = LOGINOUT_MSG;
@@ -560,7 +560,7 @@ void loginout(int clientfd, string str)
     int len = send(clientfd, buffer.c_str(), strlen(buffer.c_str()) + 1, 0);
     if (-1 == len)
     {
-        cerr << "send loginout msg error -> " << buffer << endl;
+        cerr << "send logout msg error -> " << buffer << endl;
     }
     else
     {
