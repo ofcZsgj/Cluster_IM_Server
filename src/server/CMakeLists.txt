@@ -7,4 +7,4 @@ aux_source_directory(./modules MODULE_LIST)
 add_executable(ChatServer ${SRC_LIST} ${DB_LIST} ${MODULE_LIST})
 
 # 指定生成可执行文件链接需要依赖的库
-target_link_libraries(ChatServer muduo_net muduo_base mysqlclient pthread)
+target_link_libraries(ChatServer muduo_net muduo_base mysqlclient hiredis pthread)
