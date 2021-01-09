@@ -5,6 +5,7 @@
 #include "offline_msg_module.hpp"
 #include "friend_module.hpp"
 #include "group_module.hpp"
+#include "redis.hpp"
 #include <muduo/net/TcpConnection.h>
 #include <functional>
 #include <unordered_map>
@@ -48,6 +49,8 @@ public:
     void ClientCloseException(const TcpConnectionPtr &conn);
     // 处理服务器端异常退出, 服务器异常，业务重置
     void reset();
+    // 从redis消息队列中获取订阅的消息的回调函数
+    void handleRedisSubscribeMessage(int, std::string);
 
 private:
     ChatService();
@@ -66,6 +69,8 @@ private:
     unordered_map<int, TcpConnectionPtr> _userConnMap;
     // 定义互斥锁保证_userConnMap的线程安全
     mutex _connMutex;
+    // redis操作对象
+    Redis _redis;
 };
 
 #endif
