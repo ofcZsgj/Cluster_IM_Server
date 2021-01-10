@@ -16,30 +16,29 @@ ChatService *ChatService::instance()
 // 注册消息以及对应的回调函数
 ChatService::ChatService()
 {
+    /**
+     * 用户基本业务管理相关事件处理回调注册
+    */
     // 登陆
-    _msgHandlerMap.insert(make_pair(LOGIN_MSG,
-                                    std::bind(&ChatService::login, this, _1, _2, _3)));
-    // 注册
-    _msgHandlerMap.insert(make_pair(REG_MSG,
-                                    std::bind(&ChatService::reg, this, _1, _2, _3)));
-    // 一对一聊天
-    _msgHandlerMap.insert(make_pair(ONE_CHAT_MSG,
-                                    std::bind(&ChatService::oneChat, this, _1, _2, _3)));
-    // 添加好友
-    _msgHandlerMap.insert(make_pair(ADD_FRIEND_MSG,
-                                    std::bind(&ChatService::addFriend, this, _1, _2, _3)));
-    // 创建群组
-    _msgHandlerMap.insert(make_pair(CREATE_GROUP_MSG,
-                                    std::bind(&ChatService::createGroup, this, _1, _2, _3)));
-    // 加入群组
-    _msgHandlerMap.insert(make_pair(ADD_GROUP_MSG,
-                                    std::bind(&ChatService::joinGroup, this, _1, _2, _3)));
-    // 群聊
-    _msgHandlerMap.insert(make_pair(GROUP_CHAT_MSG,
-                                    std::bind(&ChatService::groupChat, this, _1, _2, _3)));
+    _msgHandlerMap.insert(make_pair(LOGIN_MSG, std::bind(&ChatService::login, this, _1, _2, _3)));
     // 登出
-    _msgHandlerMap.insert(make_pair(LOGINOUT_MSG,
-                                    std::bind(&ChatService::logout, this, _1, _2, _3)));
+    _msgHandlerMap.insert(make_pair(LOGINOUT_MSG, std::bind(&ChatService::logout, this, _1, _2, _3)));
+    // 注册
+    _msgHandlerMap.insert(make_pair(REG_MSG, std::bind(&ChatService::reg, this, _1, _2, _3)));
+    // 一对一聊天
+    _msgHandlerMap.insert(make_pair(ONE_CHAT_MSG, std::bind(&ChatService::oneChat, this, _1, _2, _3)));
+    // 添加好友
+    _msgHandlerMap.insert(make_pair(ADD_FRIEND_MSG, std::bind(&ChatService::addFriend, this, _1, _2, _3)));
+
+    /**
+     *  群组业务管理相关事件处理回调注册
+    */
+    // 创建群组
+    _msgHandlerMap.insert(make_pair(CREATE_GROUP_MSG, std::bind(&ChatService::createGroup, this, _1, _2, _3)));
+    // 加入群组
+    _msgHandlerMap.insert(make_pair(ADD_GROUP_MSG, std::bind(&ChatService::joinGroup, this, _1, _2, _3)));
+    // 群聊
+    _msgHandlerMap.insert(make_pair(GROUP_CHAT_MSG, std::bind(&ChatService::groupChat, this, _1, _2, _3)));
 
     // 连接redis
     if (_redis.connect())

@@ -57,18 +57,23 @@ private:
 
     // 存储消息种类的ID和对应的业务映射方法
     std::unordered_map<int, MsgHandler> _msgHandlerMap;
-    // user表的数据对象操作类
-    UserModule _userModule;
-    // offline_message表的数据对象操作类
-    OfflineMsgModule _offlineMsgModule;
-    // friend表的数据对象操作类
-    FriendModule _friendModule;
-    // all_group,group_user表的数据操作类
-    GroupModule _groupModule;
+
     // 存储在线用户的通信连接
     unordered_map<int, TcpConnectionPtr> _userConnMap;
     // 定义互斥锁保证_userConnMap的线程安全
     mutex _connMutex;
+
+    /**
+     * MySQL数据库的操作类对象
+     * 1. user表数据操作类对象
+     * 2. offline_message表的数据对象操作类
+     * 3. all_group, group_user表的数据操作类
+    */
+    UserModule _userModule;
+    OfflineMsgModule _offlineMsgModule;
+    FriendModule _friendModule;
+    GroupModule _groupModule;
+
     // redis操作对象
     Redis _redis;
 };

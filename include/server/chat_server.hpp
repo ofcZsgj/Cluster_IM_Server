@@ -25,10 +25,10 @@ private:
     // 上报读写事件相关的回调函数
     void onMessage(const TcpConnectionPtr &conn, // 连接
                    Buffer *buffer,               // 缓冲区
-                   Timestamp time);              // 接收到数据时的事件
+                   Timestamp time);              // 接收到数据时的时间
 
-    TcpServer _server;
-    EventLoop *_loop;
+    TcpServer _server; // 管理accept获得的TcpConnection
+    EventLoop *_loop;  // 运行事件循环 one loop per thread
 };
 
 #endif

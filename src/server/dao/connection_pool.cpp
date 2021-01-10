@@ -14,7 +14,6 @@ bool ConnectionPool::loadConfigFile()
     FILE *pf = fopen("../dbpool.cnf", "r"); // 这里的相对路径是相对于生成的可执行文件而言
     if (pf == nullptr)
     {
-        LOG_INFO << "dbpool.cnf file is not exist";
         return false;
     }
 
@@ -90,18 +89,15 @@ ConnectionPool::ConnectionPool()
         p->refreshAliveTime();
         _connectionQue.push(p);
         ++_connectionCnt;
-        LOG_INFO << "create connection";
     }
 
     // 启动一个线程，作为连接的生产者 thread ->Linux pthread_create
     // 给这个成员方法绑定一个当前对象，否则无法作为一个线程函数（需要C接口）
     thread produce(std::bind(&ConnectionPool::produceConnectionTask, this));
     produce.detach();
-    LOG_INFO << "produce thread start";
     // 启动一个新的定时线程，扫描超过maxIdleTime时间的空闲连接并进行回收
     thread scanner(std::bind(&ConnectionPool::scannerConnectionTask, this));
     scanner.detach();
-    LOG_INFO << "scanner thread start";
 }
 
 // 运行在独立的线程中，专门负责生产新连接
@@ -109,15 +105,12 @@ void ConnectionPool::produceConnectionTask()
 {
     for (;;)
     {
-        LOG_INFO << "papare produce";
         unique_lock<mutex> lock(_queueMutex); //加锁
         while (!_connectionQue.empty())
         {
-            LOG_INFO << "connection queue is empty";
             // 队列不为空，生产者线程进入等待状态（释放锁）
             cv.wait(lock);
         }
-        LOG_INFO << "continue create connection";
         // 连接数量没有到达上限，继续创建新的连接
         if (_connectionCnt < _maxSize)
         {
@@ -126,13 +119,10 @@ void ConnectionPool::produceConnectionTask()
             p->refreshAliveTime();
             _connectionQue.push(p);
             ++_connectionCnt;
-            LOG_INFO << "++connection";
         }
 
         // 通知消费者线程可以消费连接了
-        LOG_INFO << "ready to notify all";
         cv.notify_all();
-        LOG_INFO << "producer notify all";
     }
 }
 
