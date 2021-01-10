@@ -1,5 +1,6 @@
 #include "chat_server.hpp"
 #include "chat_service.hpp"
+#include "connection_pool.hpp"
 
 #include <signal.h>
 #include <iostream>
@@ -10,6 +11,9 @@ void resetHandle(int)
     ChatService::instance()->reset();
     exit(0);
 }
+
+// 获取数据库连接池对象的唯一实例
+ConnectionPool *dbpool = ConnectionPool::getConnectionPool();
 
 int main(int argc, char **argv)
 {
