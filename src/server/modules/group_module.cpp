@@ -3,7 +3,7 @@
 // 创建群组
 bool GroupModule::createGroup(Group &group)
 {
-    char sql[128] = {0};
+    char sql[512] = {0};
     sprintf(sql, "insert into all_group(group_name, group_desc) values('%s', '%s')",
             group.getName().c_str(), group.getDesc().c_str());
 
@@ -21,7 +21,7 @@ bool GroupModule::createGroup(Group &group)
 // 加入群组
 void GroupModule::addGroup(int userid, int groupid, string role)
 {
-    char sql[128] = {};
+    char sql[256] = {0};
     sprintf(sql, "insert into group_user(user_id, group_id, group_role) values(%d, %d, '%s')", userid, groupid, role.c_str());
 
     shared_ptr<Connection> sp = dbpool->getConnection();
@@ -37,6 +37,7 @@ vector<Group> GroupModule::queryGroup(int userid)
     // 查询所有的群组信息
     sprintf(sql, "select ta.id, ta.group_desc, ta.group_name from all_group as ta inner join group_user as tb on ta.id = tb.group_id where tb.user_id = %d", userid);
 
+    // 存放用户所在的所有群组及每个群组的成员
     std::vector<Group> groupvec;
 
     shared_ptr<Connection> sp = dbpool->getConnection();
@@ -66,13 +67,13 @@ vector<Group> GroupModule::queryGroup(int userid)
 
         shared_ptr<Connection> sp = dbpool->getConnection();
         MYSQL_RES *res = sp->query(sql);
-
         if (res != nullptr)
         {
             // 把用户信息查询放到group_user的vector中，最后再放到group中
             MYSQL_ROW row;
             while ((row = mysql_fetch_row(res)) != nullptr)
             {
+                // 存放该群组中的成员信息
                 GroupUser gu;
                 gu.setId(atoi(row[0]));
                 gu.setName(row[1]);
@@ -91,14 +92,14 @@ vector<Group> GroupModule::queryGroup(int userid)
 // 根据指定的groupid查询该群组的所有成员除userid外，返回这些用户的id给service来发送消息
 vector<int> GroupModule::queryGroupUsers(int userid, int groupid)
 {
-    char sql[128] = {0};
+    char sql[256] = {0};
     sprintf(sql, "select user_id from group_user where group_id = %d and user_id != %d", groupid, userid);
 
+    // 存放用户所在的这个群组中其余成员的id
     vector<int> idvec;
 
     shared_ptr<Connection> sp = dbpool->getConnection();
     MYSQL_RES *res = sp->query(sql);
-
     if (res != nullptr)
     {
         // 把用户id存到vec中返回给service派发消息

@@ -3,7 +3,7 @@
 // 添加好友关系
 void FriendModule::insert(int userid, int friendid)
 {
-    char sql[128] = {};
+    char sql[256] = {0};
     sprintf(sql, "insert into friend(user_id, friend_id) values(%d, %d)", userid, friendid);
 
     shared_ptr<Connection> sp = dbpool->getConnection();
@@ -15,10 +15,11 @@ void FriendModule::insert(int userid, int friendid)
 // 返回用户的好友列表
 std::vector<User> FriendModule::query(int userid)
 {
-    char sql[128] = {};
+    char sql[256] = {0};
     // user表和frieend联合查询，找到userid的所有好友
     sprintf(sql, "select ta.id, ta.name, ta.state from user as ta inner join friend as tb on ta.id = tb.friend_id where tb.user_id = %d", userid);
 
+    // 存放用户的好友信息
     std::vector<User> vec;
 
     shared_ptr<Connection> sp = dbpool->getConnection();

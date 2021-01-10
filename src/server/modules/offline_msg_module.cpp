@@ -3,7 +3,7 @@
 // 向offline_message表中存储离线信息
 void OfflineMsgModule::insert(int userid, string msg)
 {
-    char sql[128] = {0};
+    char sql[1024] = {0};
     sprintf(sql, "insert into offline_message values(%d, '%s')", userid, msg.c_str());
 
     shared_ptr<Connection> sp = dbpool->getConnection();
@@ -15,7 +15,7 @@ void OfflineMsgModule::insert(int userid, string msg)
 // 删除offline_message表中存储的离线消息
 void OfflineMsgModule::remove(int userid)
 {
-    char sql[128] = {0};
+    char sql[256] = {0};
     sprintf(sql, "delete from offline_message where user_id = %d", userid);
 
     shared_ptr<Connection> sp = dbpool->getConnection();
@@ -27,9 +27,10 @@ void OfflineMsgModule::remove(int userid)
 // 查询用户的离线消息
 vector<string> OfflineMsgModule::query(int userid)
 {
-    char sql[128] = {0};
+    char sql[256] = {0};
     sprintf(sql, "select message from offline_message where user_id = %d", userid);
 
+    // 存放用户的所有离线消息
     vector<string> vec;
 
     shared_ptr<Connection> sp = dbpool->getConnection();
