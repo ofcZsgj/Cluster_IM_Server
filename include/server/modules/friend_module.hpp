@@ -3,6 +3,9 @@
 
 #include <vector>
 #include "user.hpp"
+#include "connection_pool.hpp"
+
+extern ConnectionPool *dbpool;
 
 class FriendModule
 {

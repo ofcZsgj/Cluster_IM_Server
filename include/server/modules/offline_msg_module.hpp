@@ -3,6 +3,9 @@
 
 #include <string>
 #include <vector>
+#include "connection_pool.hpp"
+
+extern ConnectionPool *dbpool;
 using namespace std;
 
 // 提供离线消息表offline_message的操作接口方法

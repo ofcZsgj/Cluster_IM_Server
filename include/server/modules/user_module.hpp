@@ -2,6 +2,9 @@
 #define USER_MODULE_H
 
 #include "user.hpp"
+#include "connection_pool.hpp"
+
+extern ConnectionPool *dbpool;
 
 // user表的数据操作类
 class UserModule

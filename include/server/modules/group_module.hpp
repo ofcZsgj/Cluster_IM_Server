@@ -2,6 +2,9 @@
 #define GROUP_MODULE_H
 
 #include "group.hpp"
+#include "connection_pool.hpp"
+
+extern ConnectionPool *dbpool;
 
 // 维护群组信息的操作接口方法
 class GroupModule
