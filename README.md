@@ -35,10 +35,10 @@
 * 使用Json For Morden C++实现数据的序列化与反序列化
 
 ## 代码结构
-<img src="/Users/zsgj/Library/Mobile Documents/com~apple~CloudDocs/Markdownf Note/images/20210110144032.png"  />
+![](https://raw.githubusercontent.com/ofcZsgj/my_pacture_bed/master/20210110144032.png)
 
 ## 代码统计
-<img src="/Users/zsgj/Library/Mobile Documents/com~apple~CloudDocs/Markdownf Note/images/20210110143604.png"  />
+![](https://raw.githubusercontent.com/ofcZsgj/my_pacture_bed/master/20210110143604.png)
 
 ## 开发过程中所遭遇的问题
 1. stack smashing detected
